@@ -76,16 +76,73 @@ export default function Home() {
 
 
   return (
+  // This is the full body of the app
   <Box
     width="100vw"
     height="100vh"
     display={"flex"}
-    justifyContent={'center'}
-    alignItems={'center'}
+    justifyContent={'left'}
+    alignItems={'top'}
     flexDirection={'Column'}
     gap={2}
+    backgroundColor={'#2c3e50'}
     >
+    {/* Top horizontal bar for logo */}
+    <Box width="100vw" height={"10vh"} display={'flex'}>
+      <Typography
+        color={'#fff'}
+        fontSize={'2em'}
+        margin={'0.5em'}
+      >
+        StockSmart
+      </Typography>
+    </Box>
+    
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////// Highlights section //////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
 
+    <Box width="100vw" height={"15vh"} display={'flex'} justifyContent={'space-between'} alignItems={'center'} >
+    <Box
+      width="calc(25% - 10px)"
+      height={"15vh"}
+      backgroundColor={"#685DAE"}
+      margin={'10px'}
+      borderRadius={'1em'}
+    >
+    </Box>
+    <Box
+      width="calc(25% - 10px)"
+      height={"15vh"}
+      backgroundColor={"#9AECDB"}
+      margin={'10px'}
+      borderRadius={'1em'}
+    >
+    </Box>
+    <Box
+      width="calc(25% - 10px)"
+      height={"15vh"}
+      backgroundColor={"#25CCF7"}
+      margin={'10px'}
+      borderRadius={'1em'}
+    >
+    </Box>
+    <Box
+      width="calc(25% - 10px)"
+      height={"15vh"}
+      backgroundColor={"#1abc9c"}
+      margin={'10px'}
+      borderRadius={'1em'}
+    >
+    </Box>
+    </Box>
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////// Modal for adding items //////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
 <Modal
   open={open}
   onClose={handleClose}
@@ -117,61 +174,69 @@ export default function Home() {
   </Box>
 </Modal>
 
-      <Button
-      onClick={handleOpen}
-      variant="contained"
-      >
-        Add
-      </Button>
-      <Box
-      width={'800px'}
-      height={'100px'}
-      bgcolor={'#7ed6df'}
-      display={'flex'}
-      justifyContent={'center'}
-      alignContent={'center'}
-      >
-        <Typography
-          mt={2}
-          variant='h3'
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////// Inventory List section //////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    {/*///////////////////////////////////////////////////////////////////////////////*/}
+      <Box width="50vw" height="40vh" display={'block'} justifyContent={'space-between'} backgroundColor="" alignContent={'center'}>
+        <Box
+        width={'50vw'}
+        height={'10vh'}
+        margin={'5px'}
+        bgcolor={'#7ed6df'}
+        display={'flex'}
+        justifyContent={'center'}
+        alignContent={'center'}
         >
-          Pantry Items
-        </Typography>
-      </Box>
-
-
-      <Stack
-        width="800px"
-        height="300px"
-        spacing={2}
-        overflow={'auto'}      
-      >
-        {pantry.map(({name, count}) =>(
-          <Stack key={name} direction={'row'} spacing={2} justifyContent={'center'} alignContent={'center'}>
-          <Box
-            key={name}
-            width="100%"
-            height="100px"
-            display={'flex'}
-            justifyContent={'center'}
-            alignContent={'space-between'}
-            bgcolor={'#f0f0f0'}
-            padding={3}
+          <Typography
+            mt={2}
+            variant='h5'
           >
-            <Typography mt={2} variant='h4' color={'#111'} margin={'0.1em'}>
-              {name}
-            </Typography>
+            Inventory
+          </Typography>
+        </Box>
+        <Stack
+          width={'50vw'}
+          height={'30vh'}
+          spacing={1}
+          overflow={'auto'}
+          backgroundColor={'#3A3941'}
+        >
+          {pantry.map(({name, count}) =>(
+            <Stack key={name} direction={'row'} spacing={2} justifyContent={'center'} alignContent={'center'}>
+            <Box
+              key={name}
+              width="100%"
+              height="60px"
+              display={'flex'}
+              justifyContent={'center'}
+              alignContent={'space-between'}
+              bgcolor={'#f0f0f0'}
+              padding={1}
+            >
+              <Typography mt={2} variant='h5' color={'#111'} margin={'0.1em'}>
+                {name}
+              </Typography>
 
-            <Typography mt={2} variant='h4' color={'#111'} margin={'0.1em 1em'}>
-              Quantity: {count}
-            </Typography>
+              <Typography mt={2} variant='h5' color={'#111'} margin={'0.1em 1em'} textAlign={'right'} fontSize={'0.8em'} verticalAlign={'middle'}>
+                Qnty: {count}
+              </Typography>
 
-          </Box>
-          <Button variant='contained' onClick={() => removeItem(name)}>Remove</Button>
-          </Stack>
-        ))};
-      </Stack>
-  </Box>
+            </Box>
+            <Button variant='contained' onClick={() => removeItem(name)}>Remove</Button>
+            </Stack>
+          ))};
+        </Stack>
+        <Button
+        onClick={handleOpen}
+        variant="contained"
+        >
+          Add items
+        </Button>
+        </Box>
+      </Box>
+      
 
   );
   
