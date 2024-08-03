@@ -1,5 +1,5 @@
 'use client'
-import {Box, Stack, Typography, Button, Modal, TextField} from '@mui/material'
+import {Box, Stack, Typography, Button, Modal, TextField, IconButton, Icon} from '@mui/material'
 import { PieChart} from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { collection, getDocs, query, setDoc, doc, deleteDoc, getDoc} from 'firebase/firestore';
@@ -164,6 +164,7 @@ export default function Home() {
     flexDirection={'Column'}
     backgroundColor={'#2c3e50'}
     overflow={'hidden'}
+    position={'relative'}
     >
     {/* Top horizontal bar for logo */}
     <Box width="100vw" height={"7vh"} display={'flex'} margin={'5px'}>
@@ -174,6 +175,16 @@ export default function Home() {
       >
         StockSmart
       </Typography>
+      <Button
+        position={'absolute'}
+        top={'0'}
+        right={'0'}
+        backgroundColor={'#34495e'}
+        height={'20px'}
+        width={'20px'}
+    >
+      <Icon />
+    </Button>
     </Box>
     
     {/*///////////////////////////////////////////////////////////////////////////////*/}
