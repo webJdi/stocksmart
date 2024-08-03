@@ -1,8 +1,8 @@
 'use client'
-import {Box, Stack, Typography, Button, Modal, TextField, IconButton, Icon} from '@mui/material'
+import {Box, Stack, Typography, Button, Modal, TextField, Timestamp, Icon} from '@mui/material'
 import { PieChart} from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { collection, getDocs, query, setDoc, doc, deleteDoc, getDoc} from 'firebase/firestore';
+import { collection, getDocs, query, setDoc, doc, deleteDoc, getDoc, where, limit, orderBy} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { firestore } from './firebase';
 //import { Camera, CameraType } from 'react-camera-pro';
@@ -49,8 +49,10 @@ export default function Home() {
   const [itemName, setItemName] = useState('');
   const [open, setOpne] = useState(false)
   const [totalCount, setTotalCount] = useState(0);
+  const [totalInventory, setTotalInventory] = useState(0);
   const [totalAdditions, setTotalAdditions] = useState(0);
   const [totalDeletions, setTotalDeletions] = useState(0);
+  const [recentActivities, setRecentActivities] = useState([]);
   
   const handleOpen = () => setOpne(true)
   const handleClose = () => setOpne(false)
@@ -68,88 +70,120 @@ export default function Home() {
     setPantry(pantryList)
   }
 
-  const updateMonthlyCounter = async() => {
-    const snapshot = query(collection(firestore, 'monthlyCounter'))
-    const docs = await getDocs(snapshot)
-    let additions = 0
+  const updateTotalCount = async () => {
+    const snapshot = await getDocs(collection(firestore, 'pantry'));
+    const totalCount = snapshot.size; // Number of documents in the 'pantry' collection
+    setTotalCount(totalCount);
+  };
 
-    let deletions = 0
-    docs.forEach((doc) => {
-      if(doc.id === 'Add')
-      {
-        additions = doc.data().count
-      }
-      else if(doc.id === 'Delete')
-      {
-        deletions = doc.data().count
-      }
-      setTotalAdditions(additions)
-      setTotalDeletions(deletions)
+  const updateTotalInventory = async () => {
+    const snapshot = await getDocs(collection(firestore, 'pantry'));
+    let totalInventory = 0;
+    snapshot.forEach((doc) => {
+      const { count } = doc.data();
+      totalInventory += count;
     });
+    setTotalInventory(totalInventory);
+  };
 
-  }
+  const updateTotalAdditions = async () => {
+    const snapshot = await getDocs(query(collection(firestore, 'monthlyCounter'), where('type','==','Add')));
+    let totalAdditions = 0;
+    snapshot.forEach((doc) => {
+        totalAdditions += 1;
+    });
+    setTotalAdditions(totalAdditions);
+  };
 
-  //Synchronizes updatePantry with firebase db
+  const updateTotalDeletions = async () => {
+    const snapshot = await getDocs(query(collection(firestore, 'monthlyCounter'), where('type','==','Delete')));
+    let totalDeletions = 0;
+    snapshot.forEach((doc) => {
+        totalDeletions += 1;
+    });
+    setTotalDeletions(totalDeletions);
+  };
+
+  const fetchLastFiveActivities = async () => {
+    const q = query(
+      collection(firestore, 'monthlyCounter')
+    );
+    const snapshot = await getDocs(q);
+    const activities = []
+    snapshot.forEach((doc) => {
+      activities.push({id:doc.id, ...doc.data()})
+    })
+
+    console.log(activities);
+    setRecentActivities(activities);
+  };
+
+  //Synchronizes fuunctions with firebase db
   useEffect(() => {
     updatePantry()
-    updateMonthlyCounter()
+    updateTotalCount()
+    updateTotalInventory()
+    updateTotalAdditions()
+    updateTotalDeletions()
+    fetchLastFiveActivities()
   },[])
 
 
   // Here, I have defined functions for adding items to the list
   const addItem = async (item) => {
-    const docRef = doc(collection(firestore, 'pantry'),item)
-    const docRef2 = doc(collection(firestore,'monthlyCounter'),item)
-    const docSnap = await getDoc(docRef)
-    const docSnap2 = await getDoc(docRef2)
-    if(docSnap2.exists())
-    {
-      const {totalCount} = docSnap2.data()
-      await setDoc(docRef2, {totalCount:totalCount+1})
-    }
-    else
-    {
-      await setDoc(docRef2, {totalCount:1})
+    const docRef = doc(collection(firestore, 'pantry'), item);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const { count } = docSnap.data();
+      await setDoc(docRef, { count: count + 1 });
+    } else {
+      await setDoc(docRef, { count: 1 });
     }
 
-    if (docSnap.exists()){
-      const {count} = docSnap.data()
-      
-      await setDoc(docRef, {count:count+1})
-      //await setDoc(docRef2, {totalCount:totalCount+1})
-    }
-    else
-    {
-      await setDoc(docRef, {count:1})
-    }
-    await updatePantry()
-  }
+    await setDoc(doc(collection(firestore, 'monthlyCounter')), {
+      type: 'Add',
+      name: item,
+      datetime: new Date()
+    });
+
+    await updatePantry();
+    await updateTotalCount()
+    await updateTotalInventory()
+    await updateTotalAdditions()
+    await updateTotalDeletions()
+    await fetchLastFiveActivities()
+  };
 
   // This will remove item from the list
   
 
   const removeItem = async (item) => {
-    const docRef = doc(collection(firestore, 'pantry'),item)
-    const docSnap = await getDoc(docRef)
-    if (docSnap.exists())
-    {
-      const {count} = docSnap.data()
-      if(count == 1)
-      {
-        await deleteDoc(docRef)
-      }
-      else
-      {
-        await setDoc(docRef, {count: count -1})
-      }
-    }
-    await addDoc(collection(firestore, 'monthlyCounter'), {
-      action: 'Subtract',
-      timestamp: serverTimestamp()
-    });
+    const docRef = doc(collection(firestore, 'pantry'), item);
+    const docSnap = await getDoc(docRef);
 
-    await updatePantry();
-    await updateMonthlyCounter();
+    if (docSnap.exists()) {
+      const { count } = docSnap.data();
+      if (count === 1) {
+        await deleteDoc(docRef);
+      } else {
+        await setDoc(docRef, { count: count - 1 });
+      }
+
+      await setDoc(doc(collection(firestore, 'monthlyCounter')), {
+        type: 'Delete',
+        name: item,
+        datetime: new Date()
+      });
+
+      await updatePantry();
+      await updateTotalCount()
+      await updateTotalInventory()
+      await updateTotalAdditions()
+      await updateTotalDeletions()
+      await fetchLastFiveActivities
+      //await updateMonthlyCounter();
+    }
   };
 
 
@@ -198,14 +232,20 @@ export default function Home() {
     <Box
       sx = {smallBox}
       backgroundColor={"#685DAE"}
+      position={'relative'}
     >
       <Typography
         fontSize={'1.2em'}
         color={'#fff'}
-        variant={'h4'}
+        fontSize={'0.7em'}
         textAlign={'center'}
       >
-        Number of items:{totalCount}
+        Number of items
+        <Typography
+          fontSize={'4em'}
+        >
+        {totalCount}
+        </Typography>
       </Typography>
       
     </Box>
@@ -217,10 +257,16 @@ export default function Home() {
     <Typography
         fontSize={'1.2em'}
         color={'#fff'}
-        variant={'h4'}
+        fontSize={'0.7em'}
         textAlign={'center'}
       >
-        Total Inventory:{totalCount}
+        Total Inventory:
+        <Typography
+          fontSize={'4em'}
+        >
+        {totalInventory}
+        </Typography>
+        
       </Typography>
     </Box>
     <Box
@@ -230,10 +276,16 @@ export default function Home() {
       <Typography
         fontSize={'1.2em'}
         color={'#fff'}
-        variant={'h4'}
+        fontSize={'0.7em'}
         textAlign={'center'}
       >
-        Total Additions:{totalCount}
+        Total Additions
+        <Typography
+          fontSize={'4em'}
+        >
+        {totalAdditions}
+        </Typography>
+        
       </Typography>
     </Box>
     <Box
@@ -243,10 +295,13 @@ export default function Home() {
     <Typography
         fontSize={'1.2em'}
         color={'#fff'}
-        variant={'h4'}
+        fontSize={'0.7em'}
         textAlign={'center'}
       >
-        Total Deletions:{totalCount}
+        Total Deletions
+        <Typography
+          fontSize={'4em'}
+        >{totalDeletions}</Typography>
       </Typography>      
     </Box>
     </Box>
@@ -386,7 +441,7 @@ export default function Home() {
           <PieChart
             series={[
               {
-                data: [{value:5, color:'#6a89cc', label:'Additions'},{value:6, color:'#82ccdd', label:'Deletions'}],
+                data: [{value:totalAdditions, color:'#6a89cc', label:'Additions'},{value:totalDeletions, color:'#82ccdd', label:'Deletions'}],
                 innerRadius: 50,  
                 outerRadius: 80,
                 paddingAngle: 5,
@@ -394,7 +449,7 @@ export default function Home() {
                 startAngle: -180,
                 endAngle: 180,
                 cx: 150,
-                cy: 150,
+                cy: 150
               }
             ]}
           />
@@ -408,9 +463,9 @@ export default function Home() {
           <PieChart
             series={[
               {
-                data: [{value:5, color:'#6a89cc', label:'Additions'},{value:6, color:'#82ccdd', label:'Deletions'}],
-                innerRadius: 50,
-                outerRadius: 80,
+                data: [{value:totalInventory, color:'#6a89cc', label:'Inventory'},{value:totalDeletions, color:'#82ccdd', label:'Consumption'}],
+                innerRadius: 20,
+                outerRadius: 60,
                 paddingAngle: 5,
                 cornerRadius: 5,
                 startAngle: -180,
@@ -468,6 +523,18 @@ export default function Home() {
               >
                 Recent Activities
               </Typography>
+              <Stack spacing={1} margin={'5px'}>
+                {recentActivities.map(activity => (
+                  <Box
+                    key={activity.id}
+                    padding={2}
+                    backgroundColor={'#f0f0f0'}
+                    borderRadius={1}
+                  >
+                    <Typography variant='body1'>{activity.type} at {activity.timestamp}</Typography>
+                  </Box>
+                ))}
+              </Stack>
             </Box>
         </Box>
       </Box>
