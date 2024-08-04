@@ -248,7 +248,7 @@ export default function Home() {
       position={'relative'}
     >
       <Typography
-        fontSize={'1.2em'}
+
         color={'#fff'}
         fontSize={'0.7em'}
         textAlign={'center'}
@@ -268,7 +268,7 @@ export default function Home() {
     >
     
     <Typography
-        fontSize={'1.2em'}
+
         color={'#fff'}
         fontSize={'0.7em'}
         textAlign={'center'}
@@ -287,7 +287,6 @@ export default function Home() {
       backgroundColor={"#6a89cc"}
     >
       <Typography
-        fontSize={'1.2em'}
         color={'#fff'}
         fontSize={'0.7em'}
         textAlign={'center'}
@@ -306,7 +305,6 @@ export default function Home() {
       backgroundColor={"#1abc9c"}
     >
     <Typography
-        fontSize={'1.2em'}
         color={'#fff'}
         fontSize={'0.7em'}
         textAlign={'center'}
@@ -419,11 +417,11 @@ export default function Home() {
               display={'block'}
               justifyContent={'center'}
               alignContent={'space-between'}
-              bgcolor={'#f0f0f0'}
+              bgcolor={'#40739e'}
               padding={1}
               position={'relative'}
             >
-              <Typography mt={2} variant='h5' color={'#111'} margin={'0.05em'} fontSize={'0.9em'} textAlign={'left'}>
+              <Typography mt={2} variant='h5' color={'#fff'} margin={'0.05em'} fontSize={'0.9em'} textAlign={'left'}>
                 {name}
               </Typography>
             </Box>
@@ -519,6 +517,7 @@ export default function Home() {
             margin={'5px'}
             backgroundColor={'#34495e'}
             boxSizing={'border-box'}
+            overflow={'auto'}
             >
               <Typography
                 mt={2}
@@ -528,15 +527,15 @@ export default function Home() {
               >
                 Recent Activities
               </Typography>
-              <Stack spacing={1} margin={'5px'}>
+              <Stack spacing={1} margin={'5px'} >
                 {recentActivities.map(activity => (
                   <Box
                     key={activity.id}
-                    padding={2}
-                    backgroundColor={'#f0f0f0'}
+                    padding={1}
+                    backgroundColor={'#40739e'}
                     borderRadius={1}
                   >
-                    <Typography variant='body1'>{activity.type} at {activity.timestamp}</Typography>
+                    <Typography variant='body1' color={'#fff'}>{activity.type} at {activity.timestamp}</Typography>
                   </Box>
                 ))}
               </Stack>
