@@ -8,6 +8,7 @@ import { firestore } from './firebase';
 import { Camera, CameraType } from 'react-camera-pro';
 import '@tensorflow/tfjs'; // TensorFlow.js
 import CameraComponent from './Cams';
+import { Quicksand } from 'next/font/google';
 
 //import { Camera, CameraType } from 'react-camera-pro';
 
@@ -26,9 +27,8 @@ const style = {
   gap: 3
 };
 
-const aData = [500,600,1100]
-const bData = [400, 300, 900]
-const xLabels = ['a','b','c']
+
+
 
 const smallBox = {
       width:"calc(25% - 10px)",
@@ -58,6 +58,8 @@ export default function Home() {
   const [totalDeletions, setTotalDeletions] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [aData, setAData] = useState([]);
+  const [xLabels, setXLabels] = useState([]);
   
   const handleOpen = () => setOpne(true)
   const handleClose = () => setOpne(false)
@@ -73,8 +75,15 @@ export default function Home() {
     const pantryList = []
     docs.forEach((doc) => {
       pantryList.push({name: doc.id, ...doc.data()})
+      
     });
     setPantry(pantryList)
+    console.log(pantryList)
+    const itemNames = pantryList.map(item => item.name);
+    const itemCounts = pantryList.map(item => item.count);
+  
+    setXLabels(itemNames);
+    setAData(itemCounts);
   }
 
   const updateTotalCount = async () => {
@@ -114,16 +123,24 @@ export default function Home() {
   const fetchLastFiveActivities = async () => {
     const q = query(
       collection(firestore, 'monthlyCounter')
+      
     );
     const snapshot = await getDocs(q);
-    const activities = []
+    let activities = [];
     snapshot.forEach((doc) => {
-      activities.push({id:doc.id, ...doc.data()})
-    })
+      const data = doc.data();
+      const datetime = data.datetime.toDate(); // Convert Firestore Timestamp to JavaScript Date
+      const formattedDate = datetime.toLocaleString(); // Format the date as a string
+      activities.push({ id: doc.id, ...data, formattedDate });
+    });
+    
+    activities = activities.sort((a, b) => b.datetime - a.datetime).slice(0, 5);
 
-    console.log(activities);
+    
+
     setRecentActivities(activities);
   };
+  
 
   //Synchronizes fuunctions with firebase db
   useEffect(() => {
@@ -195,6 +212,8 @@ export default function Home() {
 
 
   return (
+
+
   // This is the full body of the app
   <Box
     width="100vw"
@@ -216,6 +235,8 @@ export default function Home() {
       >
         StockSmart
       </Typography>
+
+      {/* ///// This section is to be completed ///// 
       <Button
         position={'absolute'}
         top={'0'}
@@ -226,8 +247,8 @@ export default function Home() {
         onClick={handleCameraOpen}
     >
       Open Camera
-      
     </Button>
+    */}
         <Modal open={cameraOpen} onClose={handleCameraClose}>
             <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', border: '2px solid #000', boxShadow: 24, pt: 2, px: 4, pb: 3, gap: 3 }}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
@@ -393,7 +414,7 @@ export default function Home() {
               variant="contained"
               size='small'
             >
-              Add items
+              Add items <Icon />
             </Button>
           </Box>
           
@@ -441,6 +462,14 @@ export default function Home() {
         margin={'5px'}
         sx={largerBox}
         >
+        <Typography
+        variant='h5'
+        fontSize={'1.1em'}
+        textAlign={'center'}
+        color={'#fff'}
+        >
+          Additions vs Deletions of items
+        </Typography>
           <PieChart
             series={[
               {
@@ -463,6 +492,14 @@ export default function Home() {
         backgroundColor={'#34495e'}
         sx={largerBox}
         >
+          <Typography
+            variant='h5'
+            fontSize={'1.1em'}
+            textAlign={'center'}
+            color={'#fff'}
+            >
+              Present Inventory vs Consumption
+          </Typography>
           <PieChart
             series={[
               {
@@ -501,8 +538,7 @@ export default function Home() {
             >
                 <BarChart
                   series={[
-                    { data: aData, label: 'pv', id: 'pvId' },
-                    { data: bData, label: 'uv', id: 'uvId' },
+                    { data: aData, label: 'products', id: 'pvId' }
                   ]}
                   xAxis={[{ data: xLabels, scaleType: 'band' }]}
                 />
@@ -534,8 +570,9 @@ export default function Home() {
                     padding={1}
                     backgroundColor={'#40739e'}
                     borderRadius={1}
+                    fontSize={'0.8em'}
                   >
-                    <Typography variant='body1' color={'#fff'}>{activity.type} at {activity.timestamp}</Typography>
+                    <Typography variant='body1' color={'#fff'}>{activity.name} {activity.type}'d at {activity.formattedDate}</Typography>
                   </Box>
                 ))}
               </Stack>
