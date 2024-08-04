@@ -5,6 +5,10 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { collection, getDocs, query, setDoc, doc, deleteDoc, getDoc, where, limit, orderBy} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { firestore } from './firebase';
+import { Camera, CameraType } from 'react-camera-pro';
+import '@tensorflow/tfjs'; // TensorFlow.js
+import CameraComponent from './Cams';
+
 //import { Camera, CameraType } from 'react-camera-pro';
 
 const style = {
@@ -53,9 +57,12 @@ export default function Home() {
   const [totalAdditions, setTotalAdditions] = useState(0);
   const [totalDeletions, setTotalDeletions] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [cameraOpen, setCameraOpen] = useState(false);
   
   const handleOpen = () => setOpne(true)
   const handleClose = () => setOpne(false)
+  const handleCameraOpen = () => setCameraOpen(true);
+  const handleCameraClose = () => setCameraOpen(false);
   
 
 
@@ -216,17 +223,23 @@ export default function Home() {
         backgroundColor={'#34495e'}
         height={'20px'}
         width={'20px'}
+        onClick={handleCameraOpen}
     >
-      <Icon />
+      Open Camera
+      
     </Button>
+        <Modal open={cameraOpen} onClose={handleCameraClose}>
+            <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', border: '2px solid #000', boxShadow: 24, pt: 2, px: 4, pb: 3, gap: 3 }}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Camera
+              </Typography>
+              <CameraComponent onClose={handleCameraClose} />
+            </Box>
+          </Modal>
     </Box>
     
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
     {/*///////////////////////////////////// Highlights section //////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-
+    
     <Box width="100vw" height={"12vh"} display={'flex'} justifyContent={'space-between'} alignItems={'center'} margin={'5px'}>
 
     <Box
@@ -305,11 +318,8 @@ export default function Home() {
       </Typography>      
     </Box>
     </Box>
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
     {/*///////////////////////////////// Modal for adding items //////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
+    
 <Modal
   open={open}
   onClose={handleClose}
@@ -341,11 +351,7 @@ export default function Home() {
   </Box>
 </Modal>
 
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
     {/*///////////////////////////////////// Inventory List section //////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
-    {/*///////////////////////////////////////////////////////////////////////////////*/}
     
     <Box
     width={"100vw"}
