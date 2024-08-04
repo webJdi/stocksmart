@@ -351,7 +351,6 @@ export default function Home() {
   </Box>
 </Modal>
 
-    {/*///////////////////////////////////// Inventory List section //////////////////////*/}
     
     <Box
     width={"100vw"}
