@@ -9,6 +9,7 @@ import { Camera, CameraType } from 'react-camera-pro';
 import '@tensorflow/tfjs'; // TensorFlow.js
 import CameraComponent from './Cams';
 import { Quicksand } from 'next/font/google';
+import Head from 'next/head';
 
 //import { Camera, CameraType } from 'react-camera-pro';
 
@@ -144,6 +145,7 @@ export default function Home() {
 
   //Synchronizes fuunctions with firebase db
   useEffect(() => {
+    document.title = "StockSmart - Inventory Management"
     updatePantry()
     updateTotalCount()
     updateTotalInventory()
@@ -212,9 +214,10 @@ export default function Home() {
 
 
   return (
+    <>
+      
 
-
-  // This is the full body of the app
+  
   <Box
     width="100vw"
     height="100vh"
@@ -580,7 +583,7 @@ export default function Home() {
         </Box>
       </Box>
       
-      
+      </>
 
   );
   
