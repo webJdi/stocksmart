@@ -1,3 +1,4 @@
+// eslint-disable-next-line react/no-unescaped-entities
 'use client'
 import {Box, Stack, Typography, Button, Modal, TextField, Timestamp, Icon} from '@mui/material'
 import { PieChart} from '@mui/x-charts/PieChart';
