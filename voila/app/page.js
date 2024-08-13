@@ -258,7 +258,7 @@ export default function Home() {
                 Camera
               </Typography>
               {/* <CameraComponent onClose={handleCameraClose} /> */}
-              
+
             </Box>
           </Modal>
     </Box>
@@ -576,7 +576,7 @@ export default function Home() {
                     borderRadius={1}
                     fontSize={'0.8em'}
                   >
-                    <Typography variant='body1' color={'#fff'}>{activity.name} {activity.type}'d at {activity.formattedDate}</Typography>
+                    <Typography variant='body1' color={'#fff'}>{activity.name} {activity.type}&#39;d at {activity.formattedDate}</Typography>
                   </Box>
                 ))}
               </Stack>
