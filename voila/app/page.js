@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { firestore } from './firebase';
 import { Camera, CameraType } from 'react-camera-pro';
 import '@tensorflow/tfjs'; // TensorFlow.js
-import CameraComponent from './Cams';
+//import CameraComponent from './Cams';
 import { Quicksand } from 'next/font/google';
 import Head from 'next/head';
 
@@ -257,7 +257,8 @@ export default function Home() {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Camera
               </Typography>
-              <CameraComponent onClose={handleCameraClose} />
+              {/* <CameraComponent onClose={handleCameraClose} /> */}
+              
             </Box>
           </Modal>
     </Box>
